@@ -1,6 +1,7 @@
 library(seqinr)
 library(MASS)
 library(ggplot2)
+library(ggpubr)
 
 sieve <- function(n) {
   n <- as.integer(n)
@@ -70,13 +71,17 @@ createRandomSequenceValues <- function(seedList, type) {
 }
 
 assignSets <- function(randSequenceValues, type) {
-
+  
+  stringValues <- ""
+  
   if (type == "DNA") {
     #DNA Set
     cat("Sequence Values: (")
+    
     for (i in 1:4) {
-      cat(paste(randSequenceValues[i], ", "))
+      stringValues <- paste(stringValues, randSequenceValues[i], ", ")
     }
+    cat(stringValues)
     cat(")\n")
     assign("a", randSequenceValues[1], envir = .GlobalEnv)
     assign("t", randSequenceValues[2], envir = .GlobalEnv)
@@ -87,8 +92,9 @@ assignSets <- function(randSequenceValues, type) {
     # AA Set 1
     cat("Sequence Values: (")
     for (i in 1:23) {
-      cat(paste(randSequenceValues[i], ", "))
+      stringValues <- paste(stringValues, randSequenceValues[i], ", ")
     }
+    cat(stringValues)
     cat(")\n")
     assign("A", randSequenceValues[1], envir = .GlobalEnv) # alanine, ala
     assign("R", randSequenceValues[2], envir = .GlobalEnv) # arginine, arg
@@ -114,6 +120,8 @@ assignSets <- function(randSequenceValues, type) {
     assign("V", randSequenceValues[22], envir = .GlobalEnv) # valine, val
     assign("X", randSequenceValues[23], envir = .GlobalEnv) # undetermined
   }
+  
+  stringValues
 }
 
 godelStatistics <- function(x) {
@@ -181,8 +189,10 @@ for (i in 1:numberOfPoints) {
 godelValuePoints <- setNames(godelValuePoints, namesList)
 godelValuePoints$seqNames <- unlist(attributes(ompGene.list)$name)
 
+stringAssignValues <- vector(mode="character", length=numberOfPoints)
+
 for (indexPos in 1:numberOfPoints) {
-  assignSets(randValues[indexPos,], type)
+  stringAssignValues[indexPos] <- assignSets(randValues[indexPos,], type)
   
   godel.value.exp <- list()
   godel.value.log <- list()
@@ -239,8 +249,15 @@ for (indexPos in 1:numberOfPoints) {
   para[indexPos, 2] <- fit$estimate["sd"]
 }
 
-mean(((para[,1]-theoreticalMeanEqual)/para[,1])*100)
-mean(((para[,2]-theoreticalStdEqual)/para[,2])*100)
+
+statsPos$stringAssignValues <- as.factor(stringAssignValues)
+statsPos$fit_estimate <- ((para[,1]-theoreticalMeanEqual)/para[,1])*100
+statsPos$fit_sd <- ((para[,2]-theoreticalStdEqual)/para[,2])*100
+
+
+
+mean(statsPos$fit_estimate)
+mean(statsPos$fit_sd)
 
 
 indexPos = 10
@@ -254,5 +271,38 @@ ggplot(godelValuePoints, aes(x=godelValuePoints[, indexPos]), environment = envi
   labs(title= "Histogram and Density plot of Godel numbers",x="Godel numbers", y = "Density")+
   scale_color_brewer(palette="Accent") + 
   theme_minimal()
+
+
+
+p1 <- ggplot(statsPos, aes(x = reorder(stringAssignValues, fit_estimate), y = fit_estimate, group=1)) +
+  geom_point() +
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title= "Difference between theoretical and observed value of Mean (%)",x="Assignments", y = "Difference in mean (%)")
+
+p2 <- ggplot(statsPos, aes(x = reorder(stringAssignValues, fit_estimate), y = fit_sd, group=1)) +
+  geom_point() +
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title= "Difference between theoretical and observed value of standard deviation (%)",x="Assignments", y = "Difference in  standard deviation (%)")
+
+ggarrange(p1 + rremove("x.text"), p2,
+          labels = c("A", "B"),
+          ncol = 1, nrow = 2)
+
+
+# a t g c
+lapply(which(statsPos$maxG == min(statsPos$maxG)),
+       function(x) assignSets(randValues[x,], "DNA"))
+# artificial dataset: 4 , 1 , 3 , 2 (min of meanG)
+# artificial dataset: 4 , 2 , 1 , 3 (min of minG)
+# artificial dataset: 2 , 1 , 3 , 4 (min of maxG)
+
+# a t g c
+lapply(which(statsPos$maxG == max(statsPos$maxG)),
+       function(x) assignSets(randValues[x,], "DNA"))
+# artificial dataset: 1 , 4 , 2 , 3 (max of meanG)
+# artificial dataset: 4 , 3 , 2 , 1 (max of minG)
+# artificial dataset: 1 , 3 , 4 , 2 (max of maxG)
 
 
