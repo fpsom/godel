@@ -147,7 +147,7 @@ godelStatistics <- function(x) {
 primes <- sieve(20000) # length of primes should be >= max sequence length
 logOutput <- FALSE     # debug output
 numberOfPoints <- 4;   # number of different assignments of letters for Godel numbers
-replicate <- TRUE     # if we need to set specific seed numbers
+replicate <- FALSE     # if we need to set specific seed numbers
 
 if (replicate == FALSE) {
   seedValuesList <- sample(seq(from = 1, to = 1000, by = 1), size = numberOfPoints, replace = FALSE)
