@@ -13,4 +13,5 @@ This material is made available under the [Creative Commons Attribution 4.0 Inte
 
 ## Citation
 
-_bioRxiv paper to be added_
+- (_arXiv preprint_) Argyris Nicolaidis and Fotis Psomopoulos, "DNA coding and Gödel numbering", arXiv:1909.13574, 2019 (_[link](https://arxiv.org/abs/1909.13574)_)
+
