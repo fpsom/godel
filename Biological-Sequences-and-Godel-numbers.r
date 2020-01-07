@@ -260,7 +260,7 @@ mean(statsPos$fit_estimate)
 mean(statsPos$fit_sd)
 
 
-indexPos = 10
+indexPos = 1
 
 binwidthPlot = 5
 
