@@ -42,6 +42,7 @@ seqList <- function(x, type) {
 createRandomSequencesBasedOnDistr <- function(count, length, prob=c(0.25,0.25,0.25,0.25), fileNameRandSeqs) {
   
   sink(fileNameRandSeqs)
+  set.seed(seedValuesList[1]) 
   for (i in 1:count) {
     cat(">Seq", i, "\n", sep = "")
     seqX <- sample(c("A","C","G","T"), length, rep=TRUE, prob)
@@ -60,6 +61,7 @@ createRandomSequenceValues <- function(seedList, type) {
   }
   
   for (i in 1:length(seedList)) {
+    set.seed(seedValuesList[i])
     if ( type == "DNA" ) {
       results[i,] <- sample(seq(from = 1, to = 4, by = 1), size = 4, replace = FALSE)
     }
